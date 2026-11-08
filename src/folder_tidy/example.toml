@@ -1,0 +1,46 @@
+# folder-tidy rules. Edit these to suit your folder.
+#
+# Rules are checked from top to bottom and the FIRST rule that matches a file wins,
+# so put specific rules (like screenshots) above general ones (like all images).
+# 'to' is a folder inside the folder being sorted; it is created if needed.
+# A rule can match by 'extensions', by 'names' (patterns where * means "anything"), or both.
+
+recursive = false        # true = also sort files inside sub-folders
+on_conflict = "skip"     # if the destination name is taken: "skip" the file, or "number" it ("a (1).jpg")
+include_hidden = false   # true = also move files whose names start with a dot
+
+[[rules]]
+to = "Images/Screenshots"
+names = ["Screenshot*", "Screen Shot*"]
+
+[[rules]]
+to = "Images"
+extensions = ["jpg", "jpeg", "png", "gif", "webp", "heic", "tif", "tiff", "bmp", "svg"]
+
+[[rules]]
+to = "Videos"
+extensions = ["mp4", "mov", "m4v", "avi", "mkv", "webm"]
+
+[[rules]]
+to = "Audio"
+extensions = ["mp3", "m4a", "wav", "flac", "aac", "ogg"]
+
+[[rules]]
+to = "Documents/PDFs"
+extensions = ["pdf"]
+
+[[rules]]
+to = "Documents"
+extensions = ["doc", "docx", "odt", "rtf", "txt", "md", "pages"]
+
+[[rules]]
+to = "Spreadsheets"
+extensions = ["xls", "xlsx", "ods", "csv", "numbers"]
+
+[[rules]]
+to = "Archives"
+extensions = ["zip", "tar", "gz", "tgz", "7z", "rar"]
+
+[[rules]]
+to = "Installers"
+extensions = ["dmg", "pkg", "exe", "msi"]

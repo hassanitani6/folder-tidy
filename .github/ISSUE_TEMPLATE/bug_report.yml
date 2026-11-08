@@ -1,0 +1,39 @@
+name: Bug report
+description: A file went to the wrong place, a rules file is rejected, undo didn't work, or the tool crashes.
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Before you file:** issues are public. Don't paste real file or folder names you'd rather keep private;
+        made-up names that show the same problem are enough.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Environment (`folder-tidy doctor` output)
+      description: Run `folder-tidy doctor` and paste the result. Check it first; it should not contain personal details.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: The exact error, or which file went where (use made-up names).
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The rules file (or the part that matters) and the command you ran.
+      render: text
+      placeholder: folder-tidy sort messy -c folder-tidy.toml --apply
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true

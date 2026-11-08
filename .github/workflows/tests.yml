@@ -1,0 +1,60 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only token; this workflow never needs to write to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - name: Ruff
+        run: uv run --locked --only-group dev ruff check .
+
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - name: Install
+        run: uv sync --locked --python ${{ matrix.python }}
+      - name: Doctor report
+        run: uv run folder-tidy doctor
+      - name: Tests
+        run: uv run pytest -q
+      - name: Example (preview, apply, undo)
+        shell: bash
+        run: |
+          mkdir -p demo && cd demo
+          uv run folder-tidy init
+          mkdir messy && touch messy/a.jpg messy/b.pdf "messy/Screenshot 1.png" messy/notes.xyz
+          uv run folder-tidy sort messy -c folder-tidy.toml
+          uv run folder-tidy sort messy -c folder-tidy.toml --apply
+          test -f messy/Images/a.jpg && test -f messy/Documents/PDFs/b.pdf
+          uv run folder-tidy undo messy/.folder-tidy/run-*.jsonl --apply
+          test -f messy/a.jpg && test -f messy/b.pdf && test ! -e messy/Images
