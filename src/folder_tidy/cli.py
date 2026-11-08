@@ -21,6 +21,13 @@ from .config import ConfigError, load
 from .core import TidyError, apply_plan, apply_undo, make_plan, make_undo_plan
 
 
+def _umask() -> int:
+    """The process umask (reading it requires setting it, so it is restored at once)."""
+    mask = os.umask(0o022)
+    os.umask(mask)
+    return mask
+
+
 def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="folder-tidy", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -113,6 +120,7 @@ def _init(args) -> int:
         parent = dest.parent if str(dest.parent) else Path(".")
         fd, tmp = tempfile.mkstemp(dir=parent, prefix=f".{dest.name}.", suffix=".part")
         try:
+            os.chmod(tmp, 0o666 & ~_umask())  # mkstemp makes the file private (0600); give it normal permissions
             with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
                 f.write(text)
             os.replace(tmp, dest)
